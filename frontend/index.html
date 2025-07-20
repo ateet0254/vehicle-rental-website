@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RentARide</title>
+
+  <meta name="description" content="RentARide - Book bicycles, scooters, bikes and cars online with real-time availability and secure payments.">
+  <meta name="author" content="Ateet Patidar">
+  <meta name="keywords" content="vehicle rental, RentARide, online booking, car rental, scooter rental">
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.css">
+
+
+</head>
+<body>
+    <!-- Header Section -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-container">
+        <img src="images/logo.png" alt="RentARide Logo" class="logo" />
+        <div class="logo-text">
+          <h1 class="site-title">RentARide</h1>
+          <h3 class="tagline">Your Vehicle, Your Ride</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Menu Icon -->
+      <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">☰</div>
+    </div>
+
+    <!-- Slide-out Menu -->
+    <div class="menu-panel" id="menuPanel">
+      <span class="close-btn" id="closeMenuBtn">✖</span>
+      <div class="menu-header">
+        <img src="images/logo.png" alt="RentARide Logo" class="logo2" />
+        <h2>RentARide</h2>
+      </div>
+      <div class="menu-items">
+        <button type="button" onclick="location.href='my-profile.html'">👤 My Profile</button>
+        <button type="button" onclick="location.href='my-bookings.html'">📖 My Bookings</button>
+        <button type="button" onclick="location.href='receipt.html'">📄 Download Receipt</button>
+        <button type="button" onclick="location.href='faq.html'">❓ FAQ/Help</button>
+        <button type="button" onclick="logout()">📕 Logout</button>
+        <div class="pickup-info">
+          <h4> 📍 Pickup & Drop Vehicles From :</h4>
+          <p>RentARide Garage ,Bypass Road, Indore.</p>
+        </div>
+        <hr />
+        <div class="menu-contact">
+          <h4 class="contact">📞 Contact us:</h4>
+          <p>📧 <strong>Email:</strong> <a href="mailto:ateet.patidar0254@gmail.com">ateet.patidar0254@gmail.com</a></p>
+          <p><strong>Contact:</strong> <a href="tel:7828070254">7828070254</a></p>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div id="userSection"></div>
+    <div id="adminLinkContainer"></div>
+  </header>
+
+  <main>
+    <div class="vehicle-section">
+      <h2 >Available Vehicles</h2>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-bar"
+        placeholder="Search by name or type..."
+        oninput="filterVehicles()"
+      />
+      <h2 class="vehicle-category">Bicycles</h2>
+      <div class="vehicles" id="bicyclesList"></div>
+
+      <h2 class="vehicle-category">Scooters</h2>
+      <div class="vehicles" id="scootersList"></div>
+
+      <h2 class="vehicle-category">Bikes</h2>
+      <div class="vehicles" id="bikesList"></div>
+
+      <h2 class="vehicle-category">Cars</h2>
+      <div class="vehicles" id="carsList"></div>
+
+      <h2 class="vehicle-category">Big Cars</h2>
+      <div class="vehicles" id="bigcarsList"></div>
+
+    </div>
+
+      <!-- Booking Form Modal -->
+    <div id="bookingModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeBookingForm()">&times;</span>
+        <h3 id="bookingTitle">Book Vehicle</h3>
+
+        <label for="startDateTime"><strong>Start Date & Time:</strong></label>
+        <input type="text" id="startDateTime" required />
+
+        <label for="endDateTime"><strong>End Date & Time:</strong></label>
+        <input type="text" id="endDateTime" required />
+
+        <p id="bookingDuration" style="margin-top:10px;"></p>
+        <p id="bookingFare" style="font-weight: bold;"></p>
+
+        <button type="button" onclick="submitBooking()">Confirm Booking</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <h3 class="footer-title">RentARide</h3>
+
+      <div class="footer-about">
+        RentARide is your go-to platform for affordable vehicle rentals — from cycles to family cars.
+      </div>
+
+      <div class="footer-contact">
+        📧 <a href="mailto:ateet.patidar0254@gmail.com">ateet.patidar0254@gmail.com</a> |
+        📞 <a href="tel:+917828070254">+91 7828070254</a>
+      </div>
+
+
+      <div class="footer-socials">
+        🔗 <a href="faq.html">FAQ</a> |
+        🌐 Follow us:
+        <a href="https://www.instagram.com/er.ateet_patidar/">Instagram</a> |
+        <a href="https://x.com/AteetPatidar1">Twitter</a> |
+        <a href="https://www.linkedin.com/in/ateet-patidar-721496252/">LinkedIn</a>
+      </div>
+
+      <div class="footer-credit">
+        👨‍💻 Created by <strong>Ateet Patidar</strong> — B.Tech Final Year<br>
+        &copy; 2025 RentARide. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>

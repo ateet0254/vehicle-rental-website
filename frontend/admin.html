@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - RentARide</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-section {
+      margin-top: 30px;
+    }
+    .admin-section h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    .vehicle-item, .booking-item, .user-item {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+    .btn-toggle {
+      background-color: #3498db;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-logout {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      
+    }
+     .btn-home {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin-left: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-home:hover {
+      background-color: #219150;
+    }
+    #addVehicleForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #addVehicleForm input {
+      padding: 10px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    #addVehicleForm input:focus {
+      border-color: #3498db;
+    }
+
+    #addVehicleForm button {
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: bold;
+      height: 42px;
+      align-self: center;
+    }
+
+    #addVehicleForm button:hover {
+      background-color: #2980b9;
+    }
+
+    .flex-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .vehicle-item, .booking-item, .user-item {
+      width: calc(33.33% - 10px); /* 3 cards per row */
+      box-sizing: border-box;
+    }
+    .toggle-heading {
+      cursor: pointer;
+      user-select: none;
+      display: inline-block;
+      padding: 8px 16px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+      background-color: #f0f0f0;
+      border: 2px solid #ccc;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .toggle-heading:hover {
+      background-color: #dfefff;
+      border-color: #7fb3d5;
+      color: #1f618d;
+    }
+
+
+    .hidden-section {
+      display: none;
+    }
+
+    .btn-delete {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>👨‍💼 RentARide Admin Panel</h1>
+      <div>
+        <button class="btn-home" onclick="location.href='index.html'">🏠 Home</button>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      
+      <h2>Add Vehicles</h2>
+      <form id="addVehicleForm" style="margin-bottom: 20px;">
+        <input type="text" id="vName" placeholder="Vehicle Name" required />
+        <input type="text" id="vType" placeholder="Type (e.g. Bike, Car)" required />
+        <input type="number" id="vPrice" placeholder="Price/Hour" required />
+        <input type="text" id="vImage" placeholder="Image URL" required />
+        <button type="submit" class="btn-toggle">➕ Add Vehicle</button>
+      </form>
+      <h2 class="toggle-heading" onclick="toggleSection('vehicleList')">▶ Vehicles</h2>
+      <div id="vehicleList" class="flex-grid hidden-section"></div>
+    </div>
+
+    <div class="admin-section">
+      <h2 class="toggle-heading" onclick="toggleSection('bookingList')">▶ Bookings</h2>
+      <div id="bookingList" class="flex-grid hidden-section"></div>
+    </div>
+
+    <div class="admin-section">
+      <h2 class="toggle-heading" onclick="toggleSection('userList')">▶ Users</h2>
+      <div id="userList" class="flex-grid hidden-section"></div>
+    </div>
+  </div>
+
+  <script>
+    function isTokenExpired(token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const now = Math.floor(Date.now() / 1000);
+        return payload.exp < now;
+      } catch (err) {
+        console.error("Invalid token format:", err);
+        return true;
+      }
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token || isTokenExpired(token)) {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!token || !user || user.role !== "admin") {
+      alert("Access Denied. Admins only.");
+      location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.href = "login.html";
+    }
+
+    async function fetchAdminData() {
+      try {
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // Fetch Vehicles
+        const vRes = await fetch("http://localhost:5000/api/admin/vehicles", { headers });
+        const vehicles = await vRes.json();
+        console.log("Admin vehicles response:", vehicles);
+
+        // 👉 Sort vehicles by type order
+        const typeOrder = ["Bicycle", "Scooter", "Bike", "Car", "Big Car"];
+        if (!Array.isArray(vehicles)) {
+          console.error("❌ Expected array, got:", vehicles);
+          alert("Failed to load vehicles — please log in as admin.");
+          return;
+        }
+        vehicles.sort((a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type));
+        const vContainer = document.getElementById("vehicleList");
+        vehicles.forEach(v => {
+          const div = document.createElement("div");
+          div.className = "vehicle-item";
+          div.innerHTML = `
+            <h3>${v.name}</h3>
+            <p><strong>Type:</strong> ${v.type}</p>
+            <p><strong>Price/Hour:</strong> ₹${v.pricePerHour}</p>
+            <p><strong>Available:</strong> ${v.available ? "Yes" : "No"}</p>
+            <button class="btn-toggle" onclick="toggleAvailability('${v._id}', ${v.available})">
+              Toggle Availability
+            </button>
+            <button class="btn-delete" onclick="deleteVehicle('${v._id}')">❌ Delete</button>
+          `;
+          vContainer.appendChild(div);
+        });
+
+        // Fetch Bookings
+        const bRes = await fetch("http://localhost:5000/api/admin/bookings", { headers });
+        const bookings = await bRes.json();
+        const bContainer = document.getElementById("bookingList");
+       
+        bookings.forEach(b => {
+          const div = document.createElement("div");
+          div.className = "booking-item";
+          const start = new Date(b.startDateTime);
+          const end = new Date(b.endDateTime);
+          const hours = Math.ceil((end - start) / (1000 * 60 * 60));
+          const fare = b.vehicle?.pricePerHour ? hours * b.vehicle.pricePerHour : "N/A";
+
+         
+          let paidStatus = "";
+          if (b.cancelled) {
+            paidStatus = 'Cancelled ❌';
+          } else if (b.paid) {
+            paidStatus = 'Paid ✅';
+          } else {
+            paidStatus = '⏳ Awaiting Payment 🛠️';
+          }
+
+          let tourStatus = "";
+          if (b.cancelled) {
+            tourStatus = 'Cancelled ❌';
+          } else if (!b.paid) {
+            tourStatus = 'On Hold ⏳';  // Awaiting payment
+          } else if (b.returned) {
+            tourStatus = 'Returned ✅';
+          } else {
+            tourStatus = 'On Tour 🛣️';
+          }
+
+          const returnBtn = (!b.returned && !b.cancelled)
+            ? `<button class="btn-toggle" onclick="markReturned('${b._id}')">Mark Returned</button>`
+            : '';
+          
+          div.innerHTML = `
+            <p><strong>Vehicle:</strong> ${b.vehicle?.name || "N/A"}</p>
+            <p><strong>User:</strong> ${b.user?.email || "N/A"}</p>
+            <p><strong>From:</strong> ${new Date(b.startDateTime).toLocaleString()}</p>
+            <p><strong>To:</strong> ${new Date(b.endDateTime).toLocaleString()}</p>
+            <p><strong>Total Hours:</strong> ${hours} hrs</p>
+            <p><strong>Total Fare:</strong> ₹${fare}</p>
+            <p><strong>Status:</strong> <span style="color: ${b.paid ? 'green' : 'red'};">${paidStatus}</span></p>
+            <p><strong>Return:</strong> 
+              <span style="color: ${
+                b.cancelled ? 'red' :
+                b.returned ? 'green' :
+                'orange'
+              };">
+                ${tourStatus}
+              </span>
+            </p>
+            ${returnBtn}
+          `;
+
+          bContainer.appendChild(div);
+        });
+
+        // Fetch Users
+        const uRes = await fetch("http://localhost:5000/api/admin/users", { headers });
+        const users = await uRes.json();
+        const uContainer = document.getElementById("userList");
+        users.forEach(u => {
+          const div = document.createElement("div");
+          div.className = "user-item";
+          div.innerHTML = `
+            <p><strong>Name:</strong> ${u.name}</p>
+            <p><strong>Email:</strong> ${u.email}</p>
+            <p><strong>Role:</strong> ${u.role}</p>
+          `;
+          uContainer.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error("❌ Admin load error:", err);
+        alert("Error loading admin data.");
+      }
+    }
+
+    async function toggleAvailability(vehicleId, currentStatus) {
+      const confirmToggle = confirm("Change availability?");
+      if (!confirmToggle) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/admin/vehicles/${vehicleId}/toggle`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ available: !currentStatus })
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert("Vehicle availability updated.");
+          location.reload();
+        } else {
+          alert(result.error || "Failed to update.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error toggling availability.");
+      }
+    }
+
+    fetchAdminData();
+    document.getElementById("addVehicleForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const newVehicle = {
+        name: document.getElementById("vName").value,
+        type: document.getElementById("vType").value,
+        pricePerHour: document.getElementById("vPrice").value,
+        image: document.getElementById("vImage").value
+      };
+
+      try {
+        const res = await fetch("http://localhost:5000/api/admin/vehicles", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(newVehicle)
+        });
+
+        if (res.ok) {
+          alert("✅ Vehicle Added!");
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert("❌ " + data.error);
+        }
+      } catch (err) {
+        console.error("Add vehicle error:", err);
+        alert("Error adding vehicle.");
+      }
+    });
+
+    // to hide unhide objects like vehicles, bookings,users
+    function toggleSection(id) {
+      const section = document.getElementById(id);
+      const heading = document.querySelector(`h2[onclick="toggleSection('${id}')"]`);
+
+      if (section.classList.contains("hidden-section")) {
+        section.classList.remove("hidden-section");
+        heading.innerHTML = `▼ ${heading.innerText.slice(2)}`;
+      } else {
+        section.classList.add("hidden-section");
+        heading.innerHTML = `▶ ${heading.innerText.slice(2)}`;
+      }
+    }
+
+    // to delete vehicle
+    async function deleteVehicle(vehicleId) {
+      const confirmDelete = confirm("Are you sure you want to delete this vehicle?");
+      if (!confirmDelete) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/admin/vehicles/${vehicleId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert("✅ Vehicle deleted!");
+          location.reload();
+        } else {
+          alert(result.error || "❌ Failed to delete vehicle.");
+        }
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert("❌ Error deleting vehicle.");
+      }
+    }
+
+    // to check item is returned or not
+    async function markReturned(bookingId) {
+      const confirmReturn = confirm("Mark this vehicle as returned?");
+      if (!confirmReturn) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/admin/bookings/${bookingId}/mark-returned`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          alert("✅ Booking marked as returned.");
+          location.reload();
+        } else {
+          const data = await res.json();
+          alert("❌ " + data.error);
+        }
+      } catch (err) {
+        console.error("Mark returned error:", err);
+        alert("❌ Failed to mark as returned.");
+      }
+    }
+
+
+  </script>
+</body>
+</html>

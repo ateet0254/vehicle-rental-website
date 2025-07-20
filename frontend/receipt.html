@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking Receipt - RentARide</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .receipt-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      padding: 20px;
+      background-color: #accade;
+      color: white;
+      text-align: center;
+      color: black;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    select, button {
+      display: block;
+      margin: 15px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    #receiptDetails {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      color: #333;
+    }
+
+    #downloadBtn {
+      margin: 20px auto;
+      display: none;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #downloadBtn:hover {
+      background-color: #1e8449;
+    }
+
+    .detail-row {
+      margin-bottom: 10px;
+    }
+
+    .detail-row strong {
+      display: inline-block;
+      width: 160px;
+      color: #2c3e50;
+    }
+    .go-back {
+      display: inline-block;
+      margin-top: 20px;
+      margin-bottom: 50px;
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: rgb(2, 2, 2);
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="receipt-container">
+    <h2 class="header">📄 Download Booking Receipt</h2>
+
+    <select id="bookingSelect">
+      <option selected disabled>🔽 Select your Booking</option>
+    </select>
+
+    <div id="receiptDetails" style="display: none;"></div>
+
+    <button id="downloadBtn">⬇️ Download as PDF</button>
+  </div>
+   <div style="text-align: center;">
+    <a href="index.html" class="go-back">← Back to Home</a>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login to access receipt.");
+      window.location.href = "login.html";
+    }
+
+    let allBookings = [];
+
+    async function fetchBookings() {
+      try {
+        const res = await fetch("http://localhost:5000/api/bookings/my", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        allBookings = await res.json();
+
+        const dropdown = document.getElementById("bookingSelect");
+        allBookings.forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b._id;
+          opt.text = `${b.vehicle?.name || "Deleted Vehicle"} - ${new Date(b.startDateTime).toLocaleDateString()}`;
+
+          dropdown.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+        alert("Failed to load bookings.");
+      }
+    }
+
+    fetchBookings();
+
+    document.getElementById("bookingSelect").addEventListener("change", async function () {
+      const bookingId = this.value;
+      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}/receipt`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        alert("❌ Failed to load receipt data.");
+        return;
+      }
+
+      const b = await res.json();
+      const status = b.cancelled ? "❌ Cancelled" :
+                    b.returned ? "✅ Returned" :
+                    b.paid ? "✔️ Paid" : "⏳ Pending";
+
+      const fare = calculateFare(b);
+      const container = document.getElementById("receiptDetails");
+
+      container.innerHTML = `
+        <h3>RentARide Booking Receipt</h3>
+        <div class="detail-row"><strong>Name:</strong> ${b.user.name}</div>
+        <div class="detail-row"><strong>Email:</strong> ${b.user.email}</div>
+        <div class="detail-row"><strong>Vehicle:</strong> ${b.vehicle?.name || "Deleted"}</div>
+        <div class="detail-row"><strong>Type:</strong> ${b.vehicle?.type || "N/A"}</div>
+        <div class="detail-row"><strong>From:</strong> ${new Date(b.startDateTime).toLocaleString()}</div>
+        <div class="detail-row"><strong>To:</strong> ${new Date(b.endDateTime).toLocaleString()}</div>
+        <div class="detail-row"><strong>Status:</strong> ${status}</div>
+        <div class="detail-row"><strong>Total Fare:</strong> ₹${fare}</div>
+        <div class="detail-row"><strong>Booking ID:</strong> ${b._id}</div>
+      `;
+
+      container.style.display = "block";
+      document.getElementById("downloadBtn").style.display = "inline-block";
+
+      document.getElementById("downloadBtn").onclick = () => {
+        html2pdf().from(container).save(`receipt-${b._id}.pdf`);
+      };
+    });
+
+    function calculateFare(booking) {
+      const start = new Date(booking.startDateTime);
+      const end = new Date(booking.endDateTime);
+      const hours = Math.ceil((end - start) / (1000 * 60 * 60));
+      return hours * (booking.vehicle?.pricePerHour || 0);
+
+    }
+  </script>
+</body>
+</html>
