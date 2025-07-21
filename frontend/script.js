@@ -33,7 +33,7 @@ function logout() {
 // Load all vehicles
 async function loadVehicles() {
   try {
-    const res = await fetch("http://localhost:5000/api/vehicles");
+    const res = await fetch("https://rentaride-fgu5.onrender.com/api/vehicles");
     allVehicles = await res.json();
 
     // Custom sort order
@@ -138,7 +138,7 @@ async function submitBooking() {
   if (!start || !end || !selectedVehicleId) return alert("Please fill all fields.");
 
   try {
-    const res = await fetch("http://localhost:5000/api/bookings", {
+    const res = await fetch("https://rentaride-fgu5.onrender.com/api/bookings", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

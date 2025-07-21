@@ -121,7 +121,7 @@
 
     async function loadRideSummary() {
       try {
-        const res = await fetch("http://localhost:5000/api/bookings/my", {
+        const res = await fetch("https://rentaride-fgu5.onrender.com/api/bookings/my", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -171,7 +171,7 @@
       }
 
       try {
-        const res = await fetch("http://localhost:5000/api/users/change-password", {
+        const res = await fetch("https://rentaride-fgu5.onrender.com/api/users/change-password", {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",

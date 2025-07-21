@@ -118,7 +118,7 @@
 
     async function fetchBookings() {
       try {
-        const res = await fetch("http://localhost:5000/api/bookings/my", {
+        const res = await fetch("https://rentaride-fgu5.onrender.com/api/bookings/my", {
           headers: { Authorization: `Bearer ${token}` }
         });
         allBookings = await res.json();
@@ -141,7 +141,7 @@
 
     document.getElementById("bookingSelect").addEventListener("change", async function () {
       const bookingId = this.value;
-      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}/receipt`, {
+      const res = await fetch(`https://rentaride-fgu5.onrender.com/api/bookings/${bookingId}/receipt`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

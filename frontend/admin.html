@@ -229,7 +229,7 @@
         const headers = { Authorization: `Bearer ${token}` };
 
         // Fetch Vehicles
-        const vRes = await fetch("http://localhost:5000/api/admin/vehicles", { headers });
+        const vRes = await fetch("https://rentaride-fgu5.onrender.com/api/admin/vehicles", { headers });
         const vehicles = await vRes.json();
         console.log("Admin vehicles response:", vehicles);
 
@@ -259,7 +259,7 @@
         });
 
         // Fetch Bookings
-        const bRes = await fetch("http://localhost:5000/api/admin/bookings", { headers });
+        const bRes = await fetch("https://rentaride-fgu5.onrender.com/api/admin/bookings", { headers });
         const bookings = await bRes.json();
         const bContainer = document.getElementById("bookingList");
        
@@ -320,7 +320,7 @@
         });
 
         // Fetch Users
-        const uRes = await fetch("http://localhost:5000/api/admin/users", { headers });
+        const uRes = await fetch("https://rentaride-fgu5.onrender.com/api/admin/users", { headers });
         const users = await uRes.json();
         const uContainer = document.getElementById("userList");
         users.forEach(u => {
@@ -345,7 +345,7 @@
       if (!confirmToggle) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/vehicles/${vehicleId}/toggle`, {
+        const res = await fetch(`https://rentaride-fgu5.onrender.com/api/admin/vehicles/${vehicleId}/toggle`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -379,7 +379,7 @@
       };
 
       try {
-        const res = await fetch("http://localhost:5000/api/admin/vehicles", {
+        const res = await fetch("https://rentaride-fgu5.onrender.com/api/admin/vehicles", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -421,7 +421,7 @@
       if (!confirmDelete) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/vehicles/${vehicleId}`, {
+        const res = await fetch(`https://rentaride-fgu5.onrender.com/api/admin/vehicles/${vehicleId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`
@@ -447,7 +447,7 @@
       if (!confirmReturn) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/bookings/${bookingId}/mark-returned`, {
+        const res = await fetch(`https://rentaride-fgu5.onrender.com/api/admin/bookings/${bookingId}/mark-returned`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
