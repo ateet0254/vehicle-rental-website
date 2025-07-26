@@ -342,7 +342,7 @@ body {
   background-clip: text;
   margin: 40px 0 20px;
   opacity: 0;
-  animation: fadeIn 1s ease forwards;
+  animation: fadeIn 10s ease forwards;
   position: relative;
   display: inline-block;
 }
